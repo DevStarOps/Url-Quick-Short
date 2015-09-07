@@ -40,9 +40,9 @@ namespace Url_Quick_Short
         private async Task LoadTrigger()
         {
             cbxSupportedKeys.Items.Clear();
-            foreach (char ch in Keylogger.SupportedTriggerKeys)
+            foreach (var item in Enum.GetValues(typeof(Keylogger.KeysWeCareAbout)))
             {
-                cbxSupportedKeys.Items.Add(ch.ToString());
+                cbxSupportedKeys.Items.Add(item.ToString());
             }
             cbxSupportedKeys.Text = SystemSettings.TriggerKey;
             chkUseAltKey.Checked = SystemSettings.TriggerUseAlt;
@@ -221,6 +221,24 @@ namespace Url_Quick_Short
         private void forceKeyFlushToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SystemSettings.logger.Flush2File(true);
+        }
+
+        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                this.Visible = false;
+            }
+            else
+            {
+                notifyIcon1.Visible = false;
+            }
+        }
+
+        private void notifyIcon1_Click(object sender, EventArgs e)
+        {
+            this.Visible = true;
         }
     }
 }

@@ -237,6 +237,7 @@
             this.cbxSupportedKeys.FormattingEnabled = true;
             this.cbxSupportedKeys.Location = new System.Drawing.Point(6, 142);
             this.cbxSupportedKeys.Name = "cbxSupportedKeys";
+            this.cbxSupportedKeys.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.cbxSupportedKeys.Size = new System.Drawing.Size(216, 29);
             this.cbxSupportedKeys.TabIndex = 8;
             // 
@@ -254,9 +255,13 @@
             // 
             // notifyIcon1
             // 
+            this.notifyIcon1.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.notifyIcon1.BalloonTipTitle = "Url Quick Short";
             this.notifyIcon1.ContextMenuStrip = this.contextMenuStrip1;
+            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
             this.notifyIcon1.Text = "Url Quick Short";
             this.notifyIcon1.Visible = true;
+            this.notifyIcon1.Click += new System.EventHandler(this.notifyIcon1_Click);
             // 
             // contextMenuStrip1
             // 
@@ -302,7 +307,8 @@
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MinimumSize = new System.Drawing.Size(583, 332);
             this.Name = "frmMain";
-            this.Text = "Url Quick Short";
+            this.Text = "Url Quick Short - BETA";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.groupBoxAuthentication.ResumeLayout(false);
             this.splitContainerAuthentication.Panel2.ResumeLayout(false);
@@ -337,11 +343,11 @@
         private System.Windows.Forms.Button btnApplyTriggerKey;
         private System.Windows.Forms.ComboBox cbxSupportedKeys;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.NotifyIcon notifyIcon1;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem enableKeyLogDebugToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem forceKeyFlushToolStripMenuItem;
+        public System.Windows.Forms.NotifyIcon notifyIcon1;
     }
 }
 

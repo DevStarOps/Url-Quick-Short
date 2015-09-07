@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -35,9 +36,27 @@ namespace Url_Quick_Short.Integrate.Bitly
 
             using (WebClient client = new WebClient())
             {
-                client.Headers.Add(HttpRequestHeader.ContentType, "application/x-www-form-urlencoded");
+                client.Headers.Set("Content-Type", "application/json");
                 client.Headers.Add(HttpRequestHeader.Authorization, $"Basic {Base64Encode(username + ":" + password)}");
-                return await client.UploadStringTaskAsync($"{BitlyBaseUrl}/oauth/access_token", $"grant_type=password&username={username}&password={password}");
+
+                string json = await client.UploadStringTaskAsync($"{BitlyBaseUrl}/oauth/access_token", $"grant_type=password&username={username}&password={password}");
+                if (json.StartsWith("{"))
+                {
+                    json = json.Replace(@"""data"": [ ], ", string.Empty);
+                    JsonResponse data = JsonConvert.DeserializeObject<JsonResponse>(json);
+                    if (data.status_txt == "OK")
+                    {
+                        return data.data.url;
+                    }
+                    else
+                    {
+                        throw new Exception(data.status_txt);
+                    }
+                }
+                else
+                {
+                    return json;
+                }
             }
         }
 
@@ -51,7 +70,22 @@ namespace Url_Quick_Short.Integrate.Bitly
         {
             using (WebClient client = new WebClient())
             {
-                return await client.DownloadStringTaskAsync($"{BitlyBaseUrl}/v3/shorten?access_token={authenticationData}&longUrl={HttpUtility.UrlEncode(url)}");
+                client.Headers.Set("Content-Type", "application/json");
+                string json = await client.DownloadStringTaskAsync($"{BitlyBaseUrl}/v3/shorten?access_token={authenticationData}&longUrl={HttpUtility.UrlEncode(url)}");
+                json = json.Replace(@"""data"": [ ], ", string.Empty);
+                JsonResponse data = JsonConvert.DeserializeObject<JsonResponse>(json);
+                if (data.status_txt == "OK")
+                {
+                    return data.data.url;
+                }
+                else if (data.status_txt == "ALREADY_A_BITLY_LINK")
+                {
+                    return url;
+                }
+                else
+                {
+                    throw new Exception(data.status_txt);
+                }
             }
         }
     }

@@ -20,7 +20,7 @@ namespace Url_Quick_Short
         internal IIntegration CurrentProvider => CommonIntegrationHelper.GetProviders().FirstOrDefault(o => o.Id == CurrentProviderId);
 
         public Dictionary<string, string> AuthenticationFieldValues { get; set; } = new Dictionary<string, string>();
-        public string AuthenticationData { get; private set; }
+        public string AuthenticationData { get; set; }
 
         public string TriggerKey { get; set; } = "+";
         public bool TriggerUseCtrl { get; set; } = true;
@@ -81,7 +81,7 @@ namespace Url_Quick_Short
             AuthenticationData = Crypto.EncryptStringAES(authenticationData, CurrentProvider.SharedSecret);
         }
 
-        public string GetAuthenticationData(string authenticationData)
+        public string GetAuthenticationData()
         {
             return Crypto.DecryptStringAES(AuthenticationData, CurrentProvider.SharedSecret);
         }

@@ -9,12 +9,14 @@
  */
 
 using System;
+using System.Linq;
 using System.IO;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Url_Quick_Short
 {
@@ -86,8 +88,6 @@ namespace Url_Quick_Short
             this.timerBufferFlush.Interval = 60000; // 1 minute
         }
 
-        public const string SupportedTriggerKeys = @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-=~`{}[]:""|;'\<>?,./";
-
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool GetKeyboardState(byte[] lpKeyState);
@@ -123,6 +123,10 @@ namespace Url_Quick_Short
             return keyPressed;
         }
 
+        private static void Invoke(Action action)
+        {
+            frmMain.Instance.Invoke(action);
+        }
 
         /// <summary>
         /// Itrerating thru the entire Keys enumeration; downed key names are stored in keyBuffer 
@@ -132,14 +136,15 @@ namespace Url_Quick_Short
         /// <param name="e"></param>
         private void timerKeyMine_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            foreach (int i in Enum.GetValues(typeof(Keys)))
+            foreach (int i in Enum.GetValues(typeof(KeysWeCareAbout)))
             {
                 if (IsKeyBeingPressed(i))
                 {
-                    AddKeyToBuffer(i);
+                    string key = Enum.GetName(typeof(KeysWeCareAbout), i);
 
-                    string keyBufferCompare = keyBuffer.Replace(" ", string.Empty);
-                    if (keyBufferCompare.EndsWith(frmMain.Instance.SystemSettings.TriggerKey))
+                    keyBuffer += key + " ";
+
+                    if (keyBuffer.EndsWith(frmMain.Instance.SystemSettings.TriggerKey + " "))
                     {
                         bool isShiftBeingPressed = IsKeyPressed(VirtualKeyStates.VK_SHIFT);
                         bool isCtrlBeingPressed = IsKeyPressed(VirtualKeyStates.VK_CONTROL);
@@ -159,239 +164,60 @@ namespace Url_Quick_Short
                         //    break;
                         //}
 
-                        MessageBox.Show("here");
-
-                        try
-                        {
-                            string value = Clipboard.GetText(TextDataFormat.Text);
-                            //Clipboard.SetDataObject(keys);
-                            //SendKeys.Send($"^(v)");
-                            //Clipboard.SetDataObject(clipboardData);
-                        }
-                        catch (Exception ex)
-                        {
-
-                        }
+                        Task.Run(ProcessTriggerKeyFound);
                         break;
                     }
                 }
             }
         }
 
-        private static void SendTheseKeys(string keys, int count = 1)
+        private async Task ProcessTriggerKeyFound()
         {
-            //string keysLeft = keys;
-            //while(keysLeft.Length > 0)
-            //{
-            //    var match = Regex.Match(keysLeft, @"\{.+\}", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            //    if (match.Success && match.Index == 0)
-            //    {
-            //        SendKeys.Send(match.Value);
-            //        SendKeys.Flush();
-            //        keysLeft = keysLeft.Remove(0, match.Length);
-            //    }
-            //    else
-            //    {
-            //        SendKeys.Send(keysLeft[0].ToString());
-            //        keysLeft = keysLeft.Remove(0, 1);
-            //        SendKeys.Flush();
-            //    }
-            //}
-
-            SendKeys.Send(keys);
-            if (count > 1)
+            try
             {
-                SendTheseKeys(keys, count--);
-            }
-        }
+                string value = string.Empty;
 
-        private void AddKeyToBuffer(int i)
-        {
-            string key = Enum.GetName(typeof(Keys), i);
-            if (Regex.IsMatch(key, @"D\d"))
-            {
-                if (IsKeyPressed(VirtualKeyStates.VK_SHIFT))
+                Invoke(() =>
                 {
-                    switch (key)
+                    value = Clipboard.GetText();
+                });
+
+                List<string> urlsFound = new List<string>();
+                foreach (Match m in Regex.Matches(value, @"((mailto\:|(news|(ht|f)tp(s?))\://){1}\S+)"))
+                {
+                    if (m.Success)
                     {
-                        case "D1":
-                            keyBuffer += "! ";
-                            return;
-                        case "D2":
-                            keyBuffer += "@ ";
-                            return;
-                        case "D3":
-                            keyBuffer += "# ";
-                            return;
-                        case "D4":
-                            keyBuffer += "$ ";
-                            return;
-                        case "D5":
-                            keyBuffer += "% ";
-                            return;
-                        case "D6":
-                            keyBuffer += "^ ";
-                            return;
-                        case "D7":
-                            keyBuffer += "& ";
-                            return;
-                        case "D8":
-                            keyBuffer += "* ";
-                            return;
-                        case "D9":
-                            keyBuffer += "( ";
-                            return;
-                        case "D0":
-                            keyBuffer += ") ";
-                            return;
+                        urlsFound.Add(m.Value);
                     }
                 }
-                else
+
+                if (urlsFound.Count > 0)
                 {
-                    switch (key)
+                    urlsFound = urlsFound.Distinct().ToList();
+
+                    Invoke(() =>
                     {
-                        case "D1":
-                            keyBuffer += "1 ";
-                            return;
-                        case "D2":
-                            keyBuffer += "2 ";
-                            return;
-                        case "D3":
-                            keyBuffer += "3 ";
-                            return;
-                        case "D4":
-                            keyBuffer += "4 ";
-                            return;
-                        case "D5":
-                            keyBuffer += "5 ";
-                            return;
-                        case "D6":
-                            keyBuffer += "6 ";
-                            return;
-                        case "D7":
-                            keyBuffer += "7 ";
-                            return;
-                        case "D8":
-                            keyBuffer += "8 ";
-                            return;
-                        case "D9":
-                            keyBuffer += "9 ";
-                            return;
-                        case "D0":
-                            keyBuffer += "0 ";
-                            return;
+                        frmMain.Instance.notifyIcon1.ShowBalloonTip(10000, "Url Quick Short", $"{urlsFound.Count} urls found!", ToolTipIcon.Info);
+                    });
+                    
+                    foreach (var url in urlsFound)
+                    {
+                        string shortUri = await frmMain.Instance.SystemSettings.CurrentProvider.ShortenUrl(url, frmMain.Instance.SystemSettings.GetAuthenticationData());
+                        value = value.Replace(url, shortUri);
                     }
+                    Invoke(() =>
+                    {
+                        Clipboard.SetText(value);
+                    });
                 }
             }
-
-            if (Regex.IsMatch(key, @"NumPad\d"))
+            catch (Exception ex)
             {
-                switch (key)
+                Invoke(() =>
                 {
-                    case "NumPad1":
-                        keyBuffer += "1 ";
-                        return;
-                    case "NumPad2":
-                        keyBuffer += "2 ";
-                        return;
-                    case "NumPad3":
-                        keyBuffer += "3 ";
-                        return;
-                    case "NumPad4":
-                        keyBuffer += "4 ";
-                        return;
-                    case "NumPad5":
-                        keyBuffer += "5 ";
-                        return;
-                    case "NumPad6":
-                        keyBuffer += "6 ";
-                        return;
-                    case "NumPad7":
-                        keyBuffer += "7 ";
-                        return;
-                    case "NumPad8":
-                        keyBuffer += "8 ";
-                        return;
-                    case "NumPad9":
-                        keyBuffer += "9 ";
-                        return;
-                    case "NumPad0":
-                        keyBuffer += "0 ";
-                        return;
-                }
+                    frmMain.Instance.notifyIcon1.ShowBalloonTip(10000, "Url Quick Short", ex.Message, ToolTipIcon.Error);
+                });
             }
-
-            if (key == "Divide")
-            {
-                keyBuffer += "/ ";
-                return;
-            }
-            if (key == "Multiply")
-            {
-                keyBuffer += "* ";
-                return;
-            }
-            if (key == "Subtract")
-            {
-                keyBuffer += "- ";
-                return;
-            }
-            if (key == "Add")
-            {
-                keyBuffer += "+ ";
-                return;
-            }
-            if (key == "Decimal")
-            {
-                keyBuffer += ". ";
-                return;
-            }
-            if (CheckForOemKey(key, "OemMinus", "_", "-"))
-            {
-                return;
-            }
-            if (CheckForOemKey(key, "Oemplus", "+", "="))
-            {
-                return;
-            }
-            if (CheckForOemKey(key, "Oemtilde", "~", "`"))
-            {
-                return;
-            }
-            if (CheckForOemKey(key, "Oem4", "{", "["))
-            {
-                return;
-            }
-            if (CheckForOemKey(key, "Oem6", "}", "]"))
-            {
-                return;
-            }
-            if (CheckForOemKey(key, "OemSemicolon", ":", ";"))
-            {
-                return;
-            }
-            if (CheckForOemKey(key, "OemQuotes", "\"", "'"))
-            {
-                return;
-            }
-            if (CheckForOemKey(key, "OemPipe", "|", "\\"))
-            {
-                return;
-            }
-            if (CheckForOemKey(key, "Oemcomma", "<", ","))
-            {
-                return;
-            }
-            if (CheckForOemKey(key, "OemPeriod", ">", "."))
-            {
-                return;
-            }
-            if (CheckForOemKey(key, "Oem2", "?", "/"))
-            {
-                return;
-            }
-
-            keyBuffer += key + " ";
         }
 
         private bool CheckForOemKey(string key, string checkFor, string ifShiftDown, string ifNotShiftDown)
@@ -414,56 +240,6 @@ namespace Url_Quick_Short
         private static bool IsKeyBeingPressed(int i)
         {
             return GetAsyncKeyState(i) == -32767;
-        }
-
-        private static void Invoke(Action action)
-        {
-            frmMain.Instance.Invoke(action);
-        }
-
-        private string ReplaceSendKeysSpecialCharacters(string keys)
-        {
-            keys = ReplaceSendKeysSpecialCharacter(keys, "+");
-            keys = ReplaceSendKeysSpecialCharacter(keys, "^");
-            keys = ReplaceSendKeysSpecialCharacter(keys, "%");
-            keys = ReplaceSendKeysSpecialCharacter(keys, "~");
-            keys = ReplaceSendKeysSpecialCharacter(keys, "(");
-            keys = ReplaceSendKeysSpecialCharacter(keys, ")");
-            return keys;
-        }
-
-        private string ReplaceSendKeysSpecialCharacter(string input, string specialCharacter)
-        {
-            return input.Replace(specialCharacter, "{" + specialCharacter + "}");
-        }
-
-        private string ReplaceRegexPatterns(string shortKeyText)
-        {
-            string result = shortKeyText;
-            result = ReplaceRegexPattern(result, @"\[Date\:(?<regex>.+)\]", (format) => DateTime.Now.ToString(format));
-            return result;
-        }
-
-        private string ReplaceRegexPattern(string input, string pattern, Func<string, string> getReplaceText)
-        {
-            string result = input;
-            var match = Regex.Match(input, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (match.Success)
-            {
-                var replaceText = getReplaceText(match.Groups["regex"].Value);
-                result = result.Remove(match.Index, match.Length);
-                result = result.Insert(match.Index, replaceText);
-            }
-            return result;
-        }
-
-        public static string PerformNewLineFix(string shortKeyText)
-        {
-            string result = shortKeyText;
-            result = result.Replace("\r\n", "{ENTER}");
-            result = result.Replace("\r", "{ENTER}");
-            result = result.Replace("\n", "{ENTER}");
-            return result;
         }
 
         /// <summary>
@@ -550,7 +326,7 @@ namespace Url_Quick_Short
             }
         }
         #endregion
-        
+
         public enum VirtualKeyStates : int
         {
             VK_LBUTTON = 0x01,
@@ -738,6 +514,262 @@ namespace Url_Quick_Short
             VK_NONAME = 0xFC,
             VK_PA1 = 0xFD,
             VK_OEM_CLEAR = 0xFE
+        }
+
+        public enum KeysWeCareAbout
+        {
+            //
+            // Summary:
+            //     The 0 key.
+            D0 = 48,
+            //
+            // Summary:
+            //     The 1 key.
+            D1 = 49,
+            //
+            // Summary:
+            //     The 2 key.
+            D2 = 50,
+            //
+            // Summary:
+            //     The 3 key.
+            D3 = 51,
+            //
+            // Summary:
+            //     The 4 key.
+            D4 = 52,
+            //
+            // Summary:
+            //     The 5 key.
+            D5 = 53,
+            //
+            // Summary:
+            //     The 6 key.
+            D6 = 54,
+            //
+            // Summary:
+            //     The 7 key.
+            D7 = 55,
+            //
+            // Summary:
+            //     The 8 key.
+            D8 = 56,
+            //
+            // Summary:
+            //     The 9 key.
+            D9 = 57,
+            //
+            // Summary:
+            //     The A key.
+            A = 65,
+            //
+            // Summary:
+            //     The B key.
+            B = 66,
+            //
+            // Summary:
+            //     The C key.
+            C = 67,
+            //
+            // Summary:
+            //     The D key.
+            D = 68,
+            //
+            // Summary:
+            //     The E key.
+            E = 69,
+            //
+            // Summary:
+            //     The F key.
+            F = 70,
+            //
+            // Summary:
+            //     The G key.
+            G = 71,
+            //
+            // Summary:
+            //     The H key.
+            H = 72,
+            //
+            // Summary:
+            //     The I key.
+            I = 73,
+            //
+            // Summary:
+            //     The J key.
+            J = 74,
+            //
+            // Summary:
+            //     The K key.
+            K = 75,
+            //
+            // Summary:
+            //     The L key.
+            L = 76,
+            //
+            // Summary:
+            //     The M key.
+            M = 77,
+            //
+            // Summary:
+            //     The N key.
+            N = 78,
+            //
+            // Summary:
+            //     The O key.
+            O = 79,
+            //
+            // Summary:
+            //     The P key.
+            P = 80,
+            //
+            // Summary:
+            //     The Q key.
+            Q = 81,
+            //
+            // Summary:
+            //     The R key.
+            R = 82,
+            //
+            // Summary:
+            //     The S key.
+            S = 83,
+            //
+            // Summary:
+            //     The T key.
+            T = 84,
+            //
+            // Summary:
+            //     The U key.
+            U = 85,
+            //
+            // Summary:
+            //     The V key.
+            V = 86,
+            //
+            // Summary:
+            //     The W key.
+            W = 87,
+            //
+            // Summary:
+            //     The X key.
+            X = 88,
+            //
+            // Summary:
+            //     The Y key.
+            Y = 89,
+            //
+            // Summary:
+            //     The Z key.
+            Z = 90,
+            //
+            // Summary:
+            //     The 0 key on the numeric keypad.
+            NumPad0 = 96,
+            //
+            // Summary:
+            //     The 1 key on the numeric keypad.
+            NumPad1 = 97,
+            //
+            // Summary:
+            //     The 2 key on the numeric keypad.
+            NumPad2 = 98,
+            //
+            // Summary:
+            //     The 3 key on the numeric keypad.
+            NumPad3 = 99,
+            //
+            // Summary:
+            //     The 4 key on the numeric keypad.
+            NumPad4 = 100,
+            //
+            // Summary:
+            //     The 5 key on the numeric keypad.
+            NumPad5 = 101,
+            //
+            // Summary:
+            //     The 6 key on the numeric keypad.
+            NumPad6 = 102,
+            //
+            // Summary:
+            //     The 7 key on the numeric keypad.
+            NumPad7 = 103,
+            //
+            // Summary:
+            //     The 8 key on the numeric keypad.
+            NumPad8 = 104,
+            //
+            // Summary:
+            //     The 9 key on the numeric keypad.
+            NumPad9 = 105,
+            //
+            // Summary:
+            //     The multiply key.
+            Multiply = 106,
+            //
+            // Summary:
+            //     The add key.
+            Add = 107,
+            //
+            // Summary:
+            //     The subtract key.
+            Subtract = 109,
+            //
+            // Summary:
+            //     The decimal key.
+            Decimal = 110,
+            //
+            // Summary:
+            //     The divide key.
+            Divide = 111,
+            //
+            // Summary:
+            //     The F1 key.
+            F1 = 112,
+            //
+            // Summary:
+            //     The F2 key.
+            F2 = 113,
+            //
+            // Summary:
+            //     The F3 key.
+            F3 = 114,
+            //
+            // Summary:
+            //     The F4 key.
+            F4 = 115,
+            //
+            // Summary:
+            //     The F5 key.
+            F5 = 116,
+            //
+            // Summary:
+            //     The F6 key.
+            F6 = 117,
+            //
+            // Summary:
+            //     The F7 key.
+            F7 = 118,
+            //
+            // Summary:
+            //     The F8 key.
+            F8 = 119,
+            //
+            // Summary:
+            //     The F9 key.
+            F9 = 120,
+            //
+            // Summary:
+            //     The F10 key.
+            F10 = 121,
+            //
+            // Summary:
+            //     The F11 key.
+            F11 = 122,
+            //
+            // Summary:
+            //     The F12 key.
+            F12 = 123,
         }
     }
 }
