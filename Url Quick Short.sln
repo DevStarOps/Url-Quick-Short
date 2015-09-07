@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Url Quick Short", "Url Quick Short\Url Quick Short.csproj", "{EBD77062-9B33-4392-A2A9-0193414427F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Url Quick Short.Integrate", "Url Quick Short.Integrate\Url Quick Short.Integrate.csproj", "{B3F47B74-ACC4-4E15-AC44-73395624D038}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Url Quick Short.Integrate.Bitly", "Url Quick Short.Integrate.Bitly\Url Quick Short.Integrate.Bitly.csproj", "{82512799-1597-4611-914B-A454958CF9E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EBD77062-9B33-4392-A2A9-0193414427F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBD77062-9B33-4392-A2A9-0193414427F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBD77062-9B33-4392-A2A9-0193414427F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBD77062-9B33-4392-A2A9-0193414427F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3F47B74-ACC4-4E15-AC44-73395624D038}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3F47B74-ACC4-4E15-AC44-73395624D038}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3F47B74-ACC4-4E15-AC44-73395624D038}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3F47B74-ACC4-4E15-AC44-73395624D038}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82512799-1597-4611-914B-A454958CF9E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82512799-1597-4611-914B-A454958CF9E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82512799-1597-4611-914B-A454958CF9E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82512799-1597-4611-914B-A454958CF9E8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(CodealikeProperties) = postSolution
+		SolutionGuid = 922edca2-ecb2-4c55-bbbc-e2f639490660
+	EndGlobalSection
+EndGlobal
