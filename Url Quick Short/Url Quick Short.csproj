@@ -25,10 +25,12 @@
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>https://clickonce.binary-stuff.com/Apps/Url-Quick-Short/</InstallUrl>
     <UpdateUrl>https://clickonce.binary-stuff.com/Apps/Url-Quick-Short/</UpdateUrl>
+    <SupportUrl>https://github.com/Gordon-Beeming/Url-Quick-Short</SupportUrl>
+    <ProductName>Url Quick Short</ProductName>
     <PublisherName>Gordon Beeming</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>index.htm</WebPage>
-    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationRevision>2</ApplicationRevision>
     <ApplicationVersion>0.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>

@@ -33,3 +33,37 @@ We currently support pressing shift, ctrl and any other key that is in the drop 
 ![trigger keys](images/002.png)
 
 after clicking apply these settings will be registered with the key capturing utility.
+
+### Making with the Magics
+
+So once you have configured everything you are able to press that key combination and we'll attempt to shorten every link that's in your clipboard. For example say you had the text below in your clipboard
+	
+	How Old .net
+	http://how-old.net/
+	
+	Gordon Beeming's Blog
+	https://binary-stuff.com/
+	
+	Bing
+	https://www.bing.com
+	
+	Some other random text 
+
+After you press your key combination (in my case that was *ctrl & shift & +*) and wait a couple milliseconds'ish and now paste from you clipboard you should see all the links have been shortened
+
+	How Old .net
+	http://r3f.co/1J4K9Ej
+	
+	Gordon Beeming's Blog
+	http://r3f.co/1PalqSD
+	
+	Bing
+	http://r3f.co/1g5ZoEL
+	
+	Some other random text
+ 
+and just like that you have all shortened urls (unless in this case bitly says that's already a bitly link, in that case the link will be unchanged).
+
+## Want to integrate?
+
+Integrating a new url shortening service is really simple, you can take a look at the bitly implementation in [BitlyPlugin.cs](https://github.com/Gordon-Beeming/Url-Quick-Short/blob/master/Url%20Quick%20Short.Integrate.Bitly/BitlyPlugin.cs).
