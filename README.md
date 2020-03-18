@@ -52,16 +52,16 @@ So once you have configured everything you are able to press that key combinatio
 After you press your key combination (in my case that was *ctrl & shift & +*) and wait a couple milliseconds'ish and now paste from you clipboard you should see all the links have been shortened
 
 	How Old .net
-	http://r3f.co/1J4K9Ej
-	
+	https://go.beeming.net/1J4K9Ej
+
 	Gordon Beeming's Blog
-	http://r3f.co/1PalqSD
-	
+	https://go.beeming.net/1PalqSD
+
 	Bing
-	http://r3f.co/1g5ZoEL
-	
-	Some other random text
- 
+	https://go.beeming.net/1g5ZoEL
+
+	Some other random text 
+
 and just like that you have all shortened urls (unless in this case bitly says that's already a bitly link, in that case the link will be unchanged).
 
 ## Want to integrate?
