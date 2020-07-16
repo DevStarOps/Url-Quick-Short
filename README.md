@@ -42,7 +42,7 @@ So once you have configured everything you are able to press that key combinatio
 	http://how-old.net/
 	
 	Gordon Beeming's Blog
-	https://binary-stuff.com/
+	https://gordonbeeming.xyz/
 	
 	Bing
 	https://www.bing.com
@@ -53,17 +53,17 @@ After you press your key combination (in my case that was *ctrl & shift & +*) an
 
 	How Old .net
 	https://go.beeming.net/1J4K9Ej
-
+	
 	Gordon Beeming's Blog
-	https://go.beeming.net/1PalqSD
-
+	https://go.beeming.net/3h1uvRW
+	
 	Bing
 	https://go.beeming.net/1g5ZoEL
-
-	Some other random text 
+	
+	Some other random text  
 
 and just like that you have all shortened urls (unless in this case bitly says that's already a bitly link, in that case the link will be unchanged).
 
 ## Want to integrate?
 
-Integrating a new url shortening service is really simple, you can take a look at the bitly implementation in [BitlyPlugin.cs](https://github.com/Gordon-Beeming/Url-Quick-Short/blob/master/Url%20Quick%20Short.Integrate.Bitly/BitlyPlugin.cs).
+Integrating a new url shortening service is really simple, you can take a look at the bitly implementation in [BitlyPlugin.cs](https://github.com/Gordon-Beeming/Url-Quick-Short/blob/main/Url%20Quick%20Short.Integrate.Bitly/BitlyPlugin.cs).
